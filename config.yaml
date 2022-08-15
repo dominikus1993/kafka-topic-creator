@@ -1,0 +1,10 @@
+topics: 
+  - topic: 
+      name: test.topic1
+      partitions: 1
+      replication: 1
+  - topic: 
+      name: test.topic2
+      partitions: 1
+      replication: 1
+      retention: 12123
