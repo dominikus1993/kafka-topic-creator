@@ -17,7 +17,13 @@ func main() {
 	viper.MergeInConfig()
 	err := viper.ReadInConfig()
 	if err != nil {
-		panic(err)
+		log.WithError(err).Fatalf("unable to read config")
+	}
+	if err := viper.BindEnv("KAFKA_BROKER"); err != nil {
+		log.WithError(err).Fatal("unable to bind env kafka_broker")
+	}
+	if err := viper.BindEnv("PREFIX"); err != nil {
+		log.WithError(err).Fatal("unable to bind env prefix")
 	}
 	conf := &config.Configuration{}
 	err = viper.Unmarshal(conf)
@@ -26,7 +32,6 @@ func main() {
 	}
 	log.WithField("config", conf).Info("configuration")
 	config := sarama.NewConfig()
-	log.WithField("broker", conf.Broker).Info("broker")
 	admin, err := sarama.NewClusterAdmin([]string{conf.Broker}, config)
 	if err != nil {
 		log.WithError(err).Fatal("unable to create cluster admin")
