@@ -1,3 +1,4 @@
+prefix: test
 topics: 
   - topic: 
       name: test.topic1

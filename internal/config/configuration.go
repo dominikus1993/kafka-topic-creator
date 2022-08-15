@@ -1,4 +1,4 @@
-package main
+package config
 
 import "fmt"
 
@@ -9,15 +9,16 @@ type TopicConfig struct {
 	Retention   string `yaml:"retention"`
 }
 
-func (cfg *TopicConfig) GetTopicName(envPrefix string) string {
-	if envPrefix == "" {
+func (cfg *TopicConfig) GetTopicName(prefix string) string {
+	if prefix == "" {
 		return cfg.Name
 	}
-	return fmt.Sprintf("%s.%s", envPrefix, cfg.Name)
+	return fmt.Sprintf("%s.%s", prefix, cfg.Name)
 }
 
 type Configuration struct {
-	Env    string `yaml:"env"`
+	Broker string `yaml:"broker" mapstructure:"KAFKA_BROKER"`
+	Prefix string `yaml:"prefix" mapstructure:"prefix"`
 	Topics []struct {
 		Topic TopicConfig `yaml:"topic"`
 	} `yaml:"topics"`
