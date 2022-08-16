@@ -9,7 +9,7 @@ import (
 )
 
 func main() {
-	viper.SetConfigName("config")
+	viper.SetConfigName("kafka")
 	viper.AddConfigPath(".")
 	viper.SetConfigType("yaml")
 
