@@ -1,11 +1,13 @@
 package main
 
 import (
-	"github.com/Shopify/sarama"
+	"os"
+
+	"github.com/dominikus1993/kafka-topic-creator/cmd"
 	"github.com/dominikus1993/kafka-topic-creator/internal/config"
-	"github.com/dominikus1993/kafka-topic-creator/internal/kafka"
 	log "github.com/sirupsen/logrus"
 	"github.com/spf13/viper"
+	"github.com/urfave/cli/v2"
 )
 
 func main() {
@@ -31,24 +33,13 @@ func main() {
 		log.WithError(err).Fatal("unable to decode into struct")
 	}
 	log.WithField("config", conf).Info("configuration")
-	config := sarama.NewConfig()
-	admin, err := sarama.NewClusterAdmin([]string{conf.Broker}, config)
-	if err != nil {
-		log.WithError(err).Fatal("unable to create cluster admin")
+
+	app := &cli.App{
+		Action: cmd.CreateTopicsIfNotExists(conf),
 	}
 
-	topics, err := admin.ListTopics()
-	if err != nil {
-		log.WithError(err).Fatal("unable to list topics")
-	}
-	creator := kafka.NewKafkaTopicCreator(conf, admin, topics)
-
-	for _, topicToCreate := range conf.Topics {
-		err := creator.CreateTopicIfNotExists(topicToCreate.Topic)
-		if err != nil {
-			log.WithError(err).Fatal("unable to create topic")
-		}
+	if err := app.Run(os.Args); err != nil {
+		log.Fatal(err)
 	}
 	log.Infoln("done")
-
 }
