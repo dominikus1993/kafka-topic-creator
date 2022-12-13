@@ -1,6 +1,8 @@
 package cmd
 
 import (
+	"strings"
+
 	"github.com/Shopify/sarama"
 	"github.com/dominikus1993/kafka-topic-creator/internal/config"
 	"github.com/dominikus1993/kafka-topic-creator/internal/kafka"
@@ -11,7 +13,7 @@ import (
 func CreateTopicsIfNotExists(conf *config.Configuration) func(context *cli.Context) error {
 	return func(context *cli.Context) error {
 		config := sarama.NewConfig()
-		admin, err := sarama.NewClusterAdmin([]string{conf.Broker}, config)
+		admin, err := sarama.NewClusterAdmin(strings.Split(conf.Broker, ","), config)
 		if err != nil {
 			log.WithError(err).Errorln("unable to create cluster admin")
 			return cli.Exit("unable to create cluster admin", 1)
