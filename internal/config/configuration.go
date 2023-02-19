@@ -17,8 +17,7 @@ func (cfg *TopicConfig) GetTopicName(prefix string) string {
 }
 
 type Configuration struct {
-	Broker string `yaml:"broker" mapstructure:"KAFKA_BROKER"`
-	Prefix string `yaml:"prefix" mapstructure:"PREFIX"`
+	Prefix string `yaml:"prefix"`
 	Topics []struct {
 		Topic TopicConfig `yaml:"topic"`
 	} `yaml:"topics"`
