@@ -9,3 +9,8 @@ topics:
       partitions: 1
       replication: 1
       retention: 12123
+  - topic: 
+      name: test.topic3
+      partitions: 1
+      replication: 1
+      retention: 12123

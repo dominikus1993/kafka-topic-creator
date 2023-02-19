@@ -1,6 +1,7 @@
 package kafka
 
 import (
+	"errors"
 	"fmt"
 
 	"github.com/Shopify/sarama"
@@ -11,23 +12,41 @@ import (
 type KafkaTopicCreator struct {
 	config *config.Configuration
 	admin  sarama.ClusterAdmin
-	topics map[string]sarama.TopicDetail
 }
 
-func NewKafkaTopicCreator(config *config.Configuration, admin sarama.ClusterAdmin, topics map[string]sarama.TopicDetail) *KafkaTopicCreator {
+func NewKafkaTopicCreator(config *config.Configuration, admin sarama.ClusterAdmin) *KafkaTopicCreator {
 	return &KafkaTopicCreator{
 		config: config,
-		topics: topics,
 		admin:  admin,
 	}
 }
 
-func (creator *KafkaTopicCreator) CreateTopicIfNotExists(topic config.TopicConfig) error {
-	topicName := topic.GetTopicName(creator.config.Prefix)
-	if _, ok := creator.topics[topicName]; ok {
-		log.WithField("topic", topicName).Infoln("topic already exists")
-		return nil
+func (creator *KafkaTopicCreator) CreateTopicsIfNotExists() error {
+	var err error = nil
+
+	brokerTopics, err := creator.admin.ListTopics()
+	if err != nil {
+		log.WithError(err).Errorln("unable to list topics")
+		return err
 	}
+	for _, topicToCreate := range creator.config.Topics {
+		topic := topicToCreate.Topic
+		topicName := topic.GetTopicName(creator.config.Prefix)
+
+		if _, ok := brokerTopics[topicName]; ok {
+			log.WithField("topic", topicName).Infoln("topic already exists")
+		}
+
+		err := creator.createTopicIfNotExists(topic)
+		if err != nil {
+			err = errors.Join(err, errors.New(fmt.Sprintf("unable to create topic: %s", topic.Name)))
+		}
+	}
+	return err
+}
+
+func (creator *KafkaTopicCreator) createTopicIfNotExists(topic config.TopicConfig) error {
+	topicName := topic.GetTopicName(creator.config.Prefix)
 
 	topicDetail := &sarama.TopicDetail{
 		NumPartitions:     topic.Partitions,
