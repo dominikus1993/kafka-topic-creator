@@ -3,7 +3,7 @@ package cmd
 import (
 	"strings"
 
-	"github.com/Shopify/sarama"
+	"github.com/IBM/sarama"
 	"github.com/dominikus1993/kafka-topic-creator/internal/kafka"
 	"github.com/dominikus1993/kafka-topic-creator/internal/yaml"
 	log "github.com/sirupsen/logrus"
